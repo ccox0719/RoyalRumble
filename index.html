@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Drive Control</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+  <main>
+    <section id="setupScreen" class="screen active">
+      <h1>Match Setup</h1>
+      <div class="settings-row">
+        <div class="settings-toggle">
+          <span>Retro Font</span>
+          <div class="button-group tiny">
+            <button id="retroOn" class="primary">On</button>
+            <button id="retroOff" class="secondary">Off</button>
+          </div>
+        </div>
+        <div class="settings-toggle">
+          <span>High Contrast</span>
+          <div class="button-group tiny">
+            <button id="hcOn" class="secondary">On</button>
+            <button id="hcOff" class="primary">Off</button>
+          </div>
+        </div>
+        <button id="settingsTest" class="ghost-btn tiny-btn">Test All Settings</button>
+      </div>
+      <div class="card">
+        <div class="grid two">
+          <div>
+            <label for="teamAName">Team A Name</label>
+            <div class="input-row">
+              <input id="teamAName" list="teamNameOptions" type="text" placeholder="Team A" value="Team A">
+              <select id="teamASelect" class="tiny-select">
+                <option value="">Pick…</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="teamBName">Team B Name</label>
+            <div class="input-row">
+              <input id="teamBName" list="teamNameOptions" type="text" placeholder="Team B" value="Team B">
+              <select id="teamBSelect" class="tiny-select">
+                <option value="">Pick…</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>Players (2–4)</label>
+        <div id="playerList" class="player-list"></div>
+        <button id="addPlayerBtn" class="primary">Add Player</button>
+        <datalist id="teamNameOptions">
+          <option value="Ironhawks"></option>
+          <option value="Thunder Kings"></option>
+          <option value="Gridlock"></option>
+          <option value="Red Comets"></option>
+          <option value="Stormbreakers"></option>
+          <option value="Iron Wolves"></option>
+          <option value="Night Runners"></option>
+          <option value="Power Drive"></option>
+          <option value="Blitz Force"></option>
+          <option value="Steel Lions"></option>
+          <option value="Pixel Blitz"></option>
+          <option value="Turbo Rams"></option>
+          <option value="Neon Crushers"></option>
+          <option value="Vector Vipers"></option>
+          <option value="Hyper Tackle"></option>
+          <option value="Shockwave"></option>
+          <option value="Downfield X"></option>
+          <option value="Velocity"></option>
+          <option value="Endzone Rush"></option>
+          <option value="Fourth & Fire"></option>
+          <option value="War Eagles"></option>
+          <option value="Razorbacks"></option>
+          <option value="Crimson Bulls"></option>
+          <option value="Black Talons"></option>
+          <option value="Silver Foxes"></option>
+          <option value="Iron Stallions"></option>
+          <option value="Bone Crushers"></option>
+          <option value="Fire Hawks"></option>
+          <option value="Night Panthers"></option>
+          <option value="Thunder Bears"></option>
+          <option value="Astro Blitz"></option>
+          <option value="Nova Drive"></option>
+          <option value="Iron Satellites"></option>
+          <option value="Red Orbit"></option>
+          <option value="Quantum Rush"></option>
+          <option value="Starbreak"></option>
+          <option value="Void Runners"></option>
+          <option value="Gravity XI"></option>
+          <option value="Meteor Guard"></option>
+          <option value="Pulse United"></option>
+          <option value="Buffalo Bills"></option>
+          <option value="Miami Dolphins"></option>
+          <option value="New England Patriots"></option>
+          <option value="New York Jets"></option>
+          <option value="Baltimore Ravens"></option>
+          <option value="Cincinnati Bengals"></option>
+          <option value="Cleveland Browns"></option>
+          <option value="Pittsburgh Steelers"></option>
+          <option value="Houston Texans"></option>
+          <option value="Indianapolis Colts"></option>
+          <option value="Jacksonville Jaguars"></option>
+          <option value="Tennessee Titans"></option>
+          <option value="Denver Broncos"></option>
+          <option value="Kansas City Chiefs"></option>
+          <option value="Las Vegas Raiders"></option>
+          <option value="Los Angeles Chargers"></option>
+          <option value="Dallas Cowboys"></option>
+          <option value="New York Giants"></option>
+          <option value="Philadelphia Eagles"></option>
+          <option value="Washington Commanders"></option>
+          <option value="Chicago Bears"></option>
+          <option value="Detroit Lions"></option>
+          <option value="Green Bay Packers"></option>
+          <option value="Minnesota Vikings"></option>
+          <option value="Atlanta Falcons"></option>
+          <option value="Carolina Panthers"></option>
+          <option value="New Orleans Saints"></option>
+          <option value="Tampa Bay Buccaneers"></option>
+          <option value="Arizona Cardinals"></option>
+          <option value="Los Angeles Rams"></option>
+          <option value="San Francisco 49ers"></option>
+          <option value="Seattle Seahawks"></option>
+          <option value="Alabama Crimson Tide"></option>
+          <option value="Georgia Bulldogs"></option>
+          <option value="LSU Tigers"></option>
+          <option value="Florida Gators"></option>
+          <option value="Tennessee Volunteers"></option>
+          <option value="Texas Longhorns"></option>
+          <option value="Oklahoma Sooners"></option>
+          <option value="Michigan Wolverines"></option>
+          <option value="Ohio State Buckeyes"></option>
+          <option value="Penn State Nittany Lions"></option>
+          <option value="Wisconsin Badgers"></option>
+          <option value="Iowa Hawkeyes"></option>
+          <option value="Nebraska Cornhuskers"></option>
+          <option value="USC Trojans"></option>
+          <option value="Oregon Ducks"></option>
+          <option value="Clemson Tigers"></option>
+          <option value="Florida State Seminoles"></option>
+          <option value="Miami Hurricanes"></option>
+          <option value="North Carolina Tar Heels"></option>
+          <option value="Iowa State Cyclones"></option>
+          <option value="Kansas State Wildcats"></option>
+          <option value="Oklahoma State Cowboys"></option>
+          <option value="TCU Horned Frogs"></option>
+          <option value="Baylor Bears"></option>
+          <option value="Texas Tech Red Raiders"></option>
+          <option value="West Virginia Mountaineers"></option>
+          <option value="Kansas Jayhawks"></option>
+          <option value="Washington Huskies"></option>
+          <option value="UCLA Bruins"></option>
+          <option value="Stanford Cardinal"></option>
+          <option value="Arizona State Sun Devils"></option>
+        </datalist>
+      </div>
+      <div class="card">
+        <label>Clock Settings</label>
+        <div class="grid two">
+          <div>
+            <small>Quarter Length (minutes)</small>
+            <input id="quarterLengthInput" type="number" min="1" max="15" value="6">
+          </div>
+          <div>
+            <small>Number of Quarters</small>
+            <input id="quartersTotalInput" type="number" min="1" max="8" value="4">
+          </div>
+        </div>
+        <div class="grid two" style="margin-top:8px;">
+          <div>
+            <small>Clock Mode</small>
+            <div class="button-group">
+              <button id="clockRunningOn" class="primary">Running</button>
+              <button id="clockRunningOff" class="secondary">Paused</button>
+            </div>
+          </div>
+          <div>
+            <small>Who Receives First</small>
+            <select id="receivesSelect">
+              <option value="A">Team A</option>
+              <option value="B">Team B</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <label>Pace Preset</label>
+        <div class="button-group" id="paceButtons">
+          <button data-pace="0.75" class="secondary">Arcade</button>
+          <button data-pace="1" class="primary">Standard</button>
+          <button data-pace="1.15" class="secondary">Sim</button>
+        </div>
+      </div>
+      <div class="card">
+        <label>Solo Team Advantage (3-player only)</label>
+        <div class="button-group">
+          <button id="soloAdvOn" class="primary">On (+1 Momentum start)</button>
+          <button id="soloAdvOff" class="secondary">Off</button>
+        </div>
+      </div>
+      <button id="startMatchBtn" class="primary wide">Start Match</button>
+    </section>
+
+    <section id="matchScreen" class="screen">
+      <div id="scoreboard" class="scoreboard scorebar">
+        <div class="sb-team">
+          <div class="sb-label" id="sbLabelA">Team A</div>
+          <div class="scoreline">
+            <span id="sbScoreA" class="sb-score">0</span>
+            <span id="sbPossA" class="poss-dot"></span>
+          </div>
+        </div>
+        <div class="sb-center">
+          <div class="hudCapsule" id="sbClock">Q1 | 6:00</div>
+          <div class="downDist" id="sbDown">1st & 10</div>
+          <div class="hudCapsule" id="sbBall">🏈 Own 20</div>
+        </div>
+        <div class="sb-team">
+          <div class="sb-label" id="sbLabelB">Team B</div>
+          <div class="scoreline">
+            <span id="sbScoreB" class="sb-score">0</span>
+            <span id="sbPossB" class="poss-dot"></span>
+          </div>
+        </div>
+      </div>
+      <div class="drive-progress card">
+        <div class="drive-meta">
+          <div class="muted">Momentum</div>
+          <div class="muted" id="momentumLabel">Momentum: 0/3</div>
+        </div>
+        <div id="driveBar" class="drive-bar" title="Momentum builds with consecutive gains and increases turnover risk"></div>
+      </div>
+      <div id="inlineBanner" class="inline-banner hidden"></div>
+      <button id="optionsBtn" class="gear-btn">⚙</button>
+
+      <div class="field-strip card">
+        <div class="field-inner">
+          <div class="endzone az"><img src="icons/game/fg.png" alt="Goal" class="goal-icon"></div>
+          <div class="field-lines">
+            <div class="yard" data-yard="10"></div>
+            <div class="yard" data-yard="20"></div>
+            <div class="yard" data-yard="30"></div>
+            <div class="yard" data-yard="40"></div>
+            <div class="yard" data-yard="50"></div>
+            <div class="yard" data-yard="60"></div>
+            <div class="yard" data-yard="70"></div>
+            <div class="yard" data-yard="80"></div>
+            <div class="yard" data-yard="90"></div>
+          </div>
+          <div id="ballMarker" class="ball-marker">🏈</div>
+          <div class="endzone bz"><img src="icons/game/fg.png" alt="Goal" class="goal-icon"></div>
+        </div>
+      </div>
+
+      <div class="phase-banner card" id="phaseBanner">Choose a play</div>
+
+      <div class="wide-shell">
+        <div class="left-col">
+          <div class="card center-card">
+            <h2>Calls</h2>
+            <div class="button-group vertical">
+              <button id="offenseCallBtn" class="primary wide">Offense Call</button>
+              <button id="defenseCallBtn" class="secondary wide">Defense Call</button>
+            </div>
+            <div class="muted" id="callStatus">No play called. No defense set.</div>
+          </div>
+        </div>
+        <div class="right-col">
+        <div class="card dice-card">
+          <h3>Dice Result</h3>
+          <div id="diceInputs" class="dice-inputs"></div>
+            <div class="patterns">
+              <div class="muted">Matches</div>
+              <div id="patternMatches">—</div>
+            </div>
+         </div>
+      </div>
+      </div>
+
+      <div class="command-bar">
+        <button id="cashOutBtn" class="secondary">Cash In</button>
+        <button id="fgBtn" class="secondary">Field Goal</button>
+        <button id="resolveBtn" class="primary">Resolve Play</button>
+      </div>
+    </section>
+
+    <section id="devScreen" class="screen card">
+      <h2>Dev Sim &amp; Balance Lab</h2>
+      <div class="grid two">
+        <div>
+          <label>Number of games</label>
+          <input id="simGames" type="number" value="100" min="1" max="2000">
+        </div>
+        <div>
+          <label>Seed</label>
+          <input id="simSeed" type="number" value="42">
+        </div>
+      </div>
+      <div class="grid three" style="margin-top:10px;">
+        <div>
+          <label>Quarter length (sec)</label>
+          <input id="simQuarterLen" type="number" value="360">
+        </div>
+        <div>
+          <label>Quarters</label>
+          <input id="simQuarters" type="number" value="4">
+        </div>
+        <div>
+          <label>Pace</label>
+          <select id="simPace">
+            <option value="0.75">Arcade (0.75x)</option>
+            <option value="1" selected>Standard (1x)</option>
+            <option value="1.15">Sim (1.15x)</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid two" style="margin-top:10px;">
+        <div class="muted">Strategies removed for balance: sims assume table read/play.</div>
+      </div>
+      <div class="button-group" style="margin-top:12px;">
+        <button id="runSimBtn" class="primary">Run Simulation</button>
+        <button id="stopSimBtn" class="ghost-btn">Stop</button>
+        <button id="quickRunBtn" class="secondary">Quick Run + Balance</button>
+        <button id="copyJsonBtn" class="secondary">Copy JSON</button>
+        <button id="downloadJsonBtn" class="secondary">Download JSON</button>
+      </div>
+      <div id="simSummary" class="card" style="margin-top:12px;">
+        <h3>Summary</h3>
+        <div id="simHeadline">Not run yet.</div>
+        <div id="simTable"></div>
+        <details>
+          <summary>Raw JSON</summary>
+          <pre id="simJson" class="pre"></pre>
+        </details>
+        <div id="balanceRecs"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-content card">
+      <h3 id="modalTitle"></h3>
+      <p id="modalBody"></p>
+      <button id="modalCloseBtn" class="primary wide">Continue</button>
+    </div>
+  </div>
+
+  <div id="cardModal" class="modal hidden">
+    <div class="modal-content card">
+      <h3 id="cardModalTitle"></h3>
+      <div id="cardModalBody"></div>
+      <div class="button-row">
+        <button id="cardSelectBtn" class="primary wide">Call Play</button>
+        <button id="cardCloseBtn" class="ghost-btn wide">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="offenseModal" class="modal hidden">
+    <div class="modal-content card wide-modal">
+      <div class="hand-header">
+        <h3>Offense Call</h3>
+        <button id="audibleBtn" class="secondary tiny-btn">Audible (once/drive)</button>
+      </div>
+      <div id="offenseCardList" class="modal-card-list"></div>
+      <div class="button-row">
+        <button id="offenseCloseBtn" class="ghost-btn wide">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="defenseModal" class="modal hidden">
+    <div class="modal-content card">
+      <h3>Defense Call</h3>
+      <div id="defenseModalOptions" class="button-group column"></div>
+      <div class="button-row">
+        <button id="defenseCloseBtn" class="ghost-btn wide">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="optionsModal" class="modal hidden">
+    <div class="modal-content card">
+      <h3>Options</h3>
+      <div class="button-group">
+        <button id="pauseClockBtn" class="secondary">Pause Clock</button>
+        <button id="resumeClockBtn" class="secondary">Resume Clock</button>
+        <button id="endQuarterBtn" class="ghost-btn">End Quarter</button>
+        <button id="resetMatchBtn" class="danger">Reset Match</button>
+      </div>
+      <div class="button-row">
+        <button id="optionsCloseBtn" class="ghost-btn wide">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameOver" class="modal hidden">
+    <div class="modal-content card">
+      <h2>Game Over</h2>
+      <div id="finalScores"></div>
+      <button id="restartBtn" class="primary wide">New Match</button>
+    </div>
+  </div>
+
+  <script type="module" src="scripts/app.js"></script>
+</body>
+</html>

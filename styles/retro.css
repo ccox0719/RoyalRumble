@@ -1,0 +1,21 @@
+body.retro {
+  font-family: "Press Start 2P", monospace;
+  letter-spacing: 0.5px;
+}
+
+body.retro .app-bar,
+body.retro .card,
+body.retro button {
+  border-radius: 4px;
+}
+
+body.high-contrast {
+  --bg: #000000;
+  --card: #0a0a0a;
+  --text: #ffffff;
+  --muted: #e5e5e5;
+  --accent: #00ff7f;
+  --accent-2: #00d0ff;
+  --danger: #ff4d4d;
+  --warning: #ffd166;
+}
