@@ -171,6 +171,7 @@ export function startDown() {
   state.currentHand.defenseCall = DefenseCall.NONE;
   state.currentHand.dice = [1, 1, 1, 1, 1];
   state.currentHand.matchedPatterns = [];
+  state.currentHand.chosenPattern = null;
   state.currentDrive.cashOutSelected = false;
   saveState();
 }
@@ -215,7 +216,7 @@ export function selectCard(cardId) {
 }
 
 export function selectCashOut() {
-  if (state.currentDrive.momentum < 2) return false;
+  if (state.currentDrive.momentum < 1) return false;
   state.currentDrive.cashOutSelected = true;
   saveState();
   return true;
@@ -228,6 +229,11 @@ export function setDefenseCall(call) {
 
 export function setDice(index, value) {
   state.currentHand.dice[index] = value;
+  saveState();
+}
+
+export function setChosenPattern(pattern) {
+  state.currentHand.chosenPattern = pattern;
   saveState();
 }
 
@@ -349,8 +355,8 @@ export function resolvePlay() {
   pushHistory();
 
   // Cash out branch
-  if (state.currentDrive.cashOutSelected && state.currentDrive.momentum >= 2) {
-    const yards = 2;
+  if (state.currentDrive.cashOutSelected && state.currentDrive.momentum >= 1) {
+    const yards = 4;
     advanceClock(card.type, true);
     state.currentDrive.ballPos += yards;
     state.currentDrive.yardsToFirst -= yards;
@@ -386,7 +392,7 @@ export function resolvePlay() {
     startDown();
     saveState();
     return {
-      message: "Cashed out for +2 yards.",
+      message: "Cashed out for +4 yards.",
       outcome: { yards, success: true },
       ballPos: state.currentDrive.ballPos,
       quarterEnded: state.clock.quarter !== prevQuarter,
@@ -400,6 +406,7 @@ export function resolvePlay() {
     card,
     defenseCall: state.currentHand.defenseCall,
     dice: state.currentHand.dice,
+    chosenPattern: state.currentHand.chosenPattern,
     driveState: state.currentDrive,
   });
   // Risk handled directly in computeOutcome; track for HUD only
@@ -495,6 +502,7 @@ export function resolvePlay() {
       gameOver: state.gameOver,
       playId: card.id,
       playName: card.name,
+      playmaker: outcome.playmaker,
     };
   }
 
@@ -541,7 +549,7 @@ export function resolvePlay() {
     saveState();
     return { message: "End of game.", outcome, gameOver: true };
   }
-  const bigPlay = Math.abs(outcome.yards) >= 15;
+  const bigPlay = outcome.highlight || Math.abs(outcome.yards) >= 15;
 
   // Prepare next down
   state.deckState.discardPileIds.push(...state.currentHand.cardIds);
@@ -559,6 +567,8 @@ export function resolvePlay() {
     gameOver: state.gameOver,
     playId: card.id,
     playName: card.name,
+    highlight: outcome.highlight,
+    highlightYards: outcome.highlightYards,
   };
 }
 

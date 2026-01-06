@@ -1,5 +1,5 @@
 import { deck } from "./deck.js";
-import { DefenseCall, detectPatterns } from "./rules.js";
+import { DefenseCall, detectPatterns, applyDefenseAdjustments } from "./rules.js";
 import { renderCard, formatDownDistance, formatField, formatClock, formatQuarter, applyTheme } from "./ui.js";
 import { formatMatchLabel } from "./utils/labels.js";
 import { getPlayFlavor } from "./flavor.js";
@@ -345,14 +345,14 @@ startMatchBtn.addEventListener("click", () => {
   showScreen(matchScreen);
 });
 
-if (offenseCallBtn && offenseModal) {
-  offenseCallBtn.addEventListener("click", () => {
-    const state = getState();
-    if (state.currentHand.selectedCardId) return; // lock once called
-    renderOffenseModal();
-    offenseModal.classList.remove("hidden");
-  });
-}
+  if (offenseCallBtn && offenseModal) {
+    offenseCallBtn.addEventListener("click", () => {
+      const state = getState();
+      if (state.currentHand.selectedCardId) return; // lock once called
+      renderOffenseModal();
+      offenseModal.classList.remove("hidden");
+    });
+  }
 if (defenseCallBtn && defenseModal) {
   defenseCallBtn.addEventListener("click", () => {
     renderDefenseModal();
@@ -418,7 +418,7 @@ if (cashOutBtn) {
   cashOutBtn.addEventListener("click", () => {
     const ok = selectCashOut();
     if (!ok) {
-      alert("Need Momentum 2+ to cash out.");
+      alert("Need Momentum 1+ to cash in.");
     }
     renderHUD();
   });
@@ -524,7 +524,7 @@ function renderHUD() {
   if (hudRisk) hudRisk.textContent = `${state.currentDrive.turnoverRisk || 0}/2`;
   if (hudScores) hudScores.textContent = `${state.teamNames?.A || "Team A"}: ${state.teams.A.score} | ${state.teamNames?.B || "Team B"}: ${state.teams.B.score}`;
   if (hudClock) hudClock.textContent = `${formatQuarter(state.clock)} ${formatClock(state.clock.secondsRemaining)}`;
-  if (cashOutBtn) cashOutBtn.disabled = state.currentDrive.momentum < 2;
+  if (cashOutBtn) cashOutBtn.disabled = state.currentDrive.momentum < 1;
   const fgEligible = state.currentDrive.down === 4 && state.currentDrive.ballPos >= 65;
   if (fgBtn) fgBtn.disabled = !fgEligible;
   if (sbScoreA && sbScoreB && sbClock && sbDown && sbBall) {
@@ -566,40 +566,48 @@ function renderCallStatus() {
   callStatus.textContent = `${playTxt} | ${defTxt}`;
 }
 
-function renderDice() {
+const friendlyTargetLabel = {
+  TWO_PAIR: "Solid Gain",
+  THREE_KIND: "First Down",
+  FOUR_KIND: "Big Play",
+  FULL_HOUSE: "Breakaway",
+  SMALL_STRAIGHT: "Open Field",
+  LARGE_STRAIGHT: "Downfield Strike",
+  YAHTZEE: "Perfect Play",
+  CHANCE: "No Gain",
+  MISS: "No Gain",
+};
+
+function renderResultButtons() {
   const state = getState();
+  if (!diceInputs) return;
   diceInputs.innerHTML = "";
-  state.currentHand.dice.forEach((val, idx) => {
+  patternMatches.innerHTML = "";
+  const selected = state.currentHand.selectedCardId;
+  const card = deck.find((c) => c.id === selected);
+  if (!card) {
+    diceInputs.textContent = "Select a play first.";
+    return;
+  }
+  const adjusted = applyDefenseAdjustments(card, state.currentHand.defenseCall);
+  const targets = [...adjusted.targets];
+  targets.push("MISS");
+  targets.forEach((t) => {
     const btn = document.createElement("button");
-    btn.className = "die-btn";
-    btn.textContent = val;
+    btn.className = "die-btn result-btn";
+    btn.textContent = friendlyTargetLabel[t] || formatMatchLabel(t);
     btn.addEventListener("click", () => {
-      const next = val % 6 + 1;
-      setDice(idx, next);
-      renderDice();
-      renderPatterns();
+      if (t === "MISS") {
+        setChosenPattern(null);
+      } else {
+        setChosenPattern(t);
+      }
+      renderResultButtons();
     });
     diceInputs.appendChild(btn);
   });
-}
-
-function renderPatterns() {
-  const state = getState();
-  const matches = detectPatterns(state.currentHand.dice);
-  const selected = state.currentHand.selectedCardId;
-  const card = deck.find((c) => c.id === selected);
-  const cardMatches = card ? matches.filter((m) => card.targets.includes(m)) : matches;
-  patternMatches.innerHTML = "";
-  if (!cardMatches.length) {
-    patternMatches.textContent = "—";
-    return;
-  }
-  cardMatches.forEach((m) => {
-    const chip = document.createElement("span");
-    chip.className = "chip";
-    chip.textContent = formatMatchLabel(m);
-    patternMatches.appendChild(chip);
-  });
+  const chosen = state.currentHand.chosenPattern;
+  patternMatches.textContent = chosen ? `Selected: ${friendlyTargetLabel[chosen] || formatMatchLabel(chosen)}` : "Selected: No Gain";
 }
 
 function renderOffenseModal() {
@@ -617,17 +625,23 @@ function renderOffenseModal() {
     wrap.appendChild(header);
     const body = renderCard(card, state.currentHand.selectedCardId === id);
     wrap.appendChild(body);
-    const btn = document.createElement("button");
-    btn.className = "primary wide";
-    btn.textContent = "Call Play";
-    btn.addEventListener("click", () => {
-      selectCard(id);
-      offenseModal.classList.add("hidden");
-      renderCallStatus();
-      renderPatterns();
-      render();
-    });
-    wrap.appendChild(btn);
+    if (!state.currentHand.selectedCardId) {
+      const btn = document.createElement("button");
+      btn.className = "primary wide";
+      btn.textContent = "Call Play";
+      btn.addEventListener("click", () => {
+        selectCard(id);
+        offenseModal.classList.add("hidden");
+        renderCallStatus();
+        render();
+      });
+      wrap.appendChild(btn);
+    } else if (state.currentHand.selectedCardId === id) {
+      const called = document.createElement("div");
+      called.className = "called-banner";
+      called.textContent = "CALLED";
+      wrap.appendChild(called);
+    }
     if (state.currentHand.selectedCardId === id) {
       const called = document.createElement("div");
       called.className = "called-banner";
@@ -695,7 +709,15 @@ function showResultModal(result) {
   let title = "Result";
   let body = result.message || "";
   let btn = "Next Play";
-  if (result.touchdown) {
+  if (result.playmaker) {
+    title = "PLAYMAKER!";
+    if (result.turnoverType === "INTERCEPTION") {
+      body = "The defense reads it perfectly.\nINTERCEPTION!";
+    } else {
+      body = "The defense reads it perfectly.\nFUMBLE!";
+    }
+    btn = "New Possession";
+  } else if (result.touchdown) {
     title = "TOUCHDOWN!";
     body = `${result.playName || "Play"}${result.outcome?.yards ? ` • ${result.outcome.yards} yards` : ""}`;
     btn = isGameOver() ? "Finish" : "Kickoff";
@@ -718,8 +740,13 @@ function showResultModal(result) {
     body = "Start next quarter.";
     btn = "Continue";
   } else if (result.bigPlay) {
-    title = "BIG PLAY!";
-    body = `${result.outcome?.yards ? `+${result.outcome.yards} yards` : ""}`;
+    if (result.highlight) {
+      title = "HIGHLIGHT PLAY!";
+      body = `${result.playName || "Play"}\n+${result.highlightYards || 0} yards bonus`;
+    } else {
+      title = "BIG PLAY!";
+      body = `${result.outcome?.yards ? `+${result.outcome.yards} yards` : ""}`;
+    }
     btn = "Next Play";
   }
   if (flavor) {
@@ -763,8 +790,7 @@ function render() {
   showScreen(matchScreen);
   renderHUD();
   renderCallStatus();
-  renderDice();
-  renderPatterns();
+  renderResultButtons();
   if (offenseCallBtn) {
     offenseCallBtn.disabled = !!state.currentHand.selectedCardId;
     offenseCallBtn.title = state.currentHand.selectedCardId ? "Play is locked in for this down" : "";
@@ -779,7 +805,7 @@ function render() {
     fgBtn.classList.toggle("disabled", !fgEligible);
   }
   if (cashOutBtn) {
-    cashOutBtn.title = "Lock in your gain now. More momentum means higher turnover risk.";
+    cashOutBtn.title = "Gain +4 yards now and reset momentum. Pressing on raises turnover risk.";
   }
   const phaseBanner = document.getElementById("phaseBanner");
   if (phaseBanner) {

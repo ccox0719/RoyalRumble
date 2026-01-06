@@ -65,14 +65,21 @@ export function applyDefenseAdjustments(card, defenseCall) {
 
 const countValue = (dice, value) => dice.filter((d) => d === value).length;
 
-export function computeOutcome({ card, defenseCall, dice, driveState }) {
+export function computeOutcome({ card, defenseCall, dice, driveState, chosenPattern: chosenInput = null }) {
   const adjustedCard = applyDefenseAdjustments(card, defenseCall);
-  const patterns = detectPatterns(dice);
-  const usablePatterns = patterns.filter((p) => adjustedCard.targets.includes(p));
+  let patterns = [];
   let chosenPattern = null;
   let success = false;
-  if (usablePatterns.length > 0) {
-    chosenPattern = usablePatterns.sort((a, b) => targetOrderValue(adjustedCard, b) - targetOrderValue(adjustedCard, a))[0];
+  let playmaker = false;
+  if (chosenInput) {
+    chosenPattern = chosenInput;
+    patterns = [chosenInput];
+  } else if (chosenInput === null && Array.isArray(dice)) {
+    patterns = detectPatterns(dice);
+    const usablePatterns = patterns.filter((p) => adjustedCard.targets.includes(p));
+    if (usablePatterns.length > 0) {
+      chosenPattern = usablePatterns.sort((a, b) => targetOrderValue(adjustedCard, b) - targetOrderValue(adjustedCard, a))[0];
+    }
   }
 
   let yards = 0;
@@ -82,6 +89,8 @@ export function computeOutcome({ card, defenseCall, dice, driveState }) {
   let turnoverType = null;
   let pressureDelta = 1; // base +1 per down used
   const bigGainThreshold = 8;
+  let highlight = false;
+  let highlightYards = 0;
 
   if (chosenPattern) {
     const outcome = adjustedCard.outcomes[chosenPattern];
@@ -107,6 +116,16 @@ export function computeOutcome({ card, defenseCall, dice, driveState }) {
     const m = driveState.momentum || 0;
     const bonus = m >= 1 ? 1 : 0; // momentum bonus capped at +1
     if (yards <= 10) yards += bonus;
+    // Highlight play check: best listed target then 1d6 = 6
+    const bestTarget = card.targets[card.targets.length - 1];
+    if (chosenPattern === bestTarget) {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      if (roll === 6) {
+        highlight = true;
+        highlightYards = (card.type === PlayType.DEEP || card.type === PlayType.TRICK) ? 8 : 6;
+        yards += highlightYards;
+      }
+    }
   }
 
   const bigGain = yards >= bigGainThreshold;
@@ -130,6 +149,20 @@ export function computeOutcome({ card, defenseCall, dice, driveState }) {
     }
   }
 
+  // Defensive Playmaker: correct guess + failed play + not already turnover
+  const defenseGuessed =
+    (defenseCall === DefenseCall.STACK && card.type === PlayType.RUN) ||
+    (defenseCall === DefenseCall.TIGHT && card.type === PlayType.SHORT) ||
+    (defenseCall === DefenseCall.DEEP && card.type === PlayType.DEEP);
+  if (!success && !turnover && defenseGuessed) {
+    const roll = Math.floor(Math.random() * 6) + 1;
+    if (roll === 6) {
+      playmaker = true;
+      turnover = true;
+      turnoverType = (card.type === PlayType.RUN || card.type === PlayType.TRICK) ? "FUMBLE_LOST" : "INTERCEPTION";
+    }
+  }
+
   return {
     yards,
     touchdown,
@@ -141,5 +174,8 @@ export function computeOutcome({ card, defenseCall, dice, driveState }) {
     chosenPattern,
     patterns,
     turnoverRiskDelta: 0,
+    highlight,
+    highlightYards,
+    playmaker,
   };
 }
